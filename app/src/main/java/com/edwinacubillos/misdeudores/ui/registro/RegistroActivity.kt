@@ -1,41 +1,34 @@
 package com.edwinacubillos.misdeudores.ui.registro
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.edwinacubillos.misdeudores.R
-import com.edwinacubillos.misdeudores.ui.login.LoginActivity
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_registro.*
 
 class RegistroActivity : AppCompatActivity() {
 
+    private lateinit var auth: FirebaseAuth
+
     companion object {
         private const val EMPTY = ""
         private const val SPACE = " "
+        private val TAG = RegistroActivity::class.simpleName
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registro)
 
-        val datosRecibidos = intent.extras
-        val numeroEnviado = datosRecibidos?.getInt("numero")
-        Toast.makeText(this, "El número enviado es $numeroEnviado", Toast.LENGTH_SHORT).show()
-
-
-        Log.d("Método", "onCreate")
+        auth = FirebaseAuth.getInstance()
 
         registrar_button.setOnClickListener {
             val correo = correo_edit_text.text.toString()
             val contrasena = contrasena_edit_text.text.toString()
 
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.putExtra("correo", correo)
-            intent.putExtra("contrasena", contrasena)
-            startActivity(intent)
-            finish()
+            registroEnFirebase(correo, contrasena)
 
             val nombre = nombre_edit_text.text.toString()
 
@@ -63,11 +56,26 @@ class RegistroActivity : AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
-        finish()
+    private fun registroEnFirebase(correo: String, contrasena: String) {
+        auth.createUserWithEmailAndPassword(correo, contrasena)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "createUserWithEmail:success")
+                    goToLoginActivity()
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
+                    Toast.makeText(
+                        baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+    }
+
+    private fun goToLoginActivity() {
+        onBackPressed()
     }
 
     override fun onStart() {
