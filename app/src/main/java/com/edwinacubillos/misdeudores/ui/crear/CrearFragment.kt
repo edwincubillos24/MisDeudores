@@ -9,7 +9,9 @@ import com.edwinacubillos.misdeudores.MisDeudores
 import com.edwinacubillos.misdeudores.R
 import com.edwinacubillos.misdeudores.data.database.dao.DeudorDAO
 import com.edwinacubillos.misdeudores.data.database.entities.Deudor
+import com.edwinacubillos.misdeudores.data.server.DeudorServer
 import com.edwinacubillos.misdeudores.databinding.FragmentCrearBinding
+import com.google.firebase.database.FirebaseDatabase
 import java.sql.Types.NULL
 
 class CrearFragment : Fragment() {
@@ -32,15 +34,35 @@ class CrearFragment : Fragment() {
             val telefono = binding.telefonoEditText.text.toString()
             val valor = binding.valorEditText.text.toString().toLong()
 
-            val deudor = Deudor(NULL, nombre, telefono, valor)
+            guardarDeudorEnDatabase(nombre, telefono, valor)
 
-            val deudorDAO: DeudorDAO = MisDeudores.database.DeudorDAO()
-
-            deudorDAO.insertDeudor(deudor)
+            guardarDeudorEnFirebase(nombre, telefono, valor)
         }
     }
 
-    companion object {
+    private fun guardarDeudorEnFirebase(nombre: String, telefono: String, valor: Long) {
+        val database = FirebaseDatabase.getInstance()
+        val myDeudorRef = database.getReference("deudores")
 
+        val id = myDeudorRef.push().key
+        val deudorServer = DeudorServer(id, nombre, telefono, valor)
+        id?.let { myDeudorRef.child(id).setValue(deudorServer) }
+        cleanViews()
+    }
+
+    fun cleanViews() {
+        binding.nombreEditText.setText("")
+        binding.telefonoEditText.setText("")
+        binding.valorEditText.setText("")
+    }
+
+    private fun guardarDeudorEnDatabase(
+        nombre: String,
+        telefono: String,
+        valor: Long
+    ) {
+        val deudor = Deudor(NULL, nombre, telefono, valor)
+        val deudorDAO: DeudorDAO = MisDeudores.database.DeudorDAO()
+        deudorDAO.insertDeudor(deudor)
     }
 }

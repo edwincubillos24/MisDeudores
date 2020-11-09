@@ -7,15 +7,19 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.edwinacubillos.misdeudores.MisDeudores
 import com.edwinacubillos.misdeudores.R
-import com.edwinacubillos.misdeudores.data.database.entities.Deudor
+import com.edwinacubillos.misdeudores.data.server.DeudorServer
 import com.edwinacubillos.misdeudores.databinding.FragmentListaBinding
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class ListaFragment : Fragment() {
 
     private lateinit var binding: FragmentListaBinding
-    var listDeudores: List<Deudor> = emptyList()
+    var listDeudores: MutableList<DeudorServer> = mutableListOf()
+    private lateinit var deudoresRVAdapter: DeudoresRVAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,13 +36,41 @@ class ListaFragment : Fragment() {
             LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         binding.deudoresRecyclerView.setHasFixedSize(true)
 
-        val deudoresRVAdapter = DeudoresRVAdapter(listDeudores as ArrayList<Deudor>)
+        deudoresRVAdapter = DeudoresRVAdapter(listDeudores as ArrayList<DeudorServer>)
 
         binding.deudoresRecyclerView.adapter = deudoresRVAdapter
 
-        val deudorDAO = MisDeudores.database.DeudorDAO()
-        listDeudores = deudorDAO.getDeudores()
+        //    cargarDesdeDatabase()
+
+        cargarDesdeFirebase()
 
         deudoresRVAdapter.notifyDataSetChanged()
     }
+
+    fun cargarDesdeFirebase() {
+        val database = FirebaseDatabase.getInstance()
+        val myDeudoresRef = database.getReference("deudores")
+
+        listDeudores.clear()
+
+        val postListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (dato: DataSnapshot in snapshot.children) {
+                    val deudorServer = dato.getValue(DeudorServer::class.java)
+                    deudorServer?.let { listDeudores.add(it) }
+                }
+                deudoresRVAdapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        }
+
+        myDeudoresRef.addValueEventListener(postListener)
+    }
+
+    /*  fun cargarDesdeDatabase(){
+          val deudorDAO = MisDeudores.database.DeudorDAO()
+          listDeudores = deudorDAO.getDeudores()
+      }*/
 }

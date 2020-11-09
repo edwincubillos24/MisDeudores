@@ -5,7 +5,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.edwinacubillos.misdeudores.R
+import com.edwinacubillos.misdeudores.data.server.Usuario
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_registro.*
 
 class RegistroActivity : AppCompatActivity() {
@@ -27,10 +29,9 @@ class RegistroActivity : AppCompatActivity() {
         registrar_button.setOnClickListener {
             val correo = correo_edit_text.text.toString()
             val contrasena = contrasena_edit_text.text.toString()
-
-            registroEnFirebase(correo, contrasena)
-
             val nombre = nombre_edit_text.text.toString()
+
+            registroEnFirebase(correo, contrasena, nombre)
 
             val telefono = telefono_edit_text.text.toString()
 
@@ -56,13 +57,15 @@ class RegistroActivity : AppCompatActivity() {
         }
     }
 
-    private fun registroEnFirebase(correo: String, contrasena: String) {
+    private fun registroEnFirebase(correo: String, contrasena: String, nombre: String) {
+
         auth.createUserWithEmailAndPassword(correo, contrasena)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success")
-                    goToLoginActivity()
+                    val uid = auth.currentUser?.uid
+                    crearUsuarioEnBaseDatos(uid, correo, nombre)
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
@@ -72,6 +75,16 @@ class RegistroActivity : AppCompatActivity() {
                     ).show()
                 }
             }
+    }
+
+    private fun crearUsuarioEnBaseDatos(uid: String?, correo: String, nombre: String) {
+        val database = FirebaseDatabase.getInstance()
+        val myUsersReference = database.getReference("usuarios")
+
+        val usuario = Usuario(uid, nombre, correo)
+        uid?.let { myUsersReference.child(uid).setValue(usuario) }
+
+        goToLoginActivity()
     }
 
     private fun goToLoginActivity() {

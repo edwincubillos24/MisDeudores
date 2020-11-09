@@ -5,6 +5,10 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_lista"
+            android:icon="@android:drawable/ic_dialog_dialer"
+            android:title="@string/lista" />
+        <item
             android:id="@+id/nav_crear"
             android:icon="@drawable/ic_menu_add"
             android:title="@string/crear" />

@@ -5,10 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.edwinacubillos.misdeudores.R
-import com.edwinacubillos.misdeudores.data.database.entities.Deudor
+import com.edwinacubillos.misdeudores.data.server.DeudorServer
 import com.edwinacubillos.misdeudores.databinding.DeudoresItemBinding
 
-class DeudoresRVAdapter(var deudoresList: ArrayList<Deudor>) :
+class DeudoresRVAdapter(var deudoresList: ArrayList<DeudorServer>) :
     RecyclerView.Adapter<DeudoresRVAdapter.DeudoresViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DeudoresViewHolder {
@@ -30,7 +30,7 @@ class DeudoresRVAdapter(var deudoresList: ArrayList<Deudor>) :
 
         private val binding = DeudoresItemBinding.bind(itemView)
 
-        fun bindDeudor(deudor: Deudor) {
+        fun bindDeudor(deudor: DeudorServer) {
             binding.nombreTextView.text = deudor.nombre
             binding.valorTextView.text = deudor.valor.toString()
         }

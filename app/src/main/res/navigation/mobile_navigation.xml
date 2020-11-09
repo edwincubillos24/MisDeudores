@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@id/nav_crear">
+    app:startDestination="@id/nav_lista">
 
     <fragment
         android:id="@+id/nav_actualizar"
@@ -25,4 +25,9 @@
         android:name="com.edwinacubillos.misdeudores.ui.crear.CrearFragment"
         android:label="@string/crear"
         tools:layout="@layout/fragment_crear" />
+    <fragment
+        android:id="@+id/nav_lista"
+        android:name="com.edwinacubillos.misdeudores.ui.lista.ListaFragment"
+        android:label="@string/lista"
+        tools:layout="@layout/fragment_lista" />
 </navigation>
