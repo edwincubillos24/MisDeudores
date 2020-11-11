@@ -9,7 +9,12 @@ import androidx.fragment.app.Fragment
 import com.edwinacubillos.misdeudores.MisDeudores
 import com.edwinacubillos.misdeudores.R
 import com.edwinacubillos.misdeudores.data.database.dao.DeudorDAO
+import com.edwinacubillos.misdeudores.data.server.DeudorServer
 import com.edwinacubillos.misdeudores.databinding.FragmentBorrarBinding
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class BorrarFragment : Fragment() {
 
@@ -29,14 +34,39 @@ class BorrarFragment : Fragment() {
         binding.borrarButton.setOnClickListener {
             val nombre = binding.nombreBorrarEditText.text.toString()
 
-            val deudorDAO: DeudorDAO = MisDeudores.database.DeudorDAO()
-            val deudor = deudorDAO.searchDeudor(nombre)
+            //        borrarDeDatabase(nombre)
 
-            if (deudor != null)
-                deudorDAO.deleteDeudor(deudor)
-            else {
-                Toast.makeText(context, "No existe", Toast.LENGTH_SHORT).show()
+            borrarDeFirebase(nombre)
+        }
+    }
+
+    private fun borrarDeFirebase(nombre: String) {
+        val database = FirebaseDatabase.getInstance()
+        val myDeudorRef = database.getReference("deudores")
+        val postListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (data: DataSnapshot in snapshot.children) {
+                    val deudorServer = data.getValue(DeudorServer::class.java)
+                    if (deudorServer?.nombre == nombre) {
+                        deudorServer.id?.let { myDeudorRef.child(it).removeValue() }
+                    }
+                }
             }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        }
+        myDeudorRef.addValueEventListener(postListener)
+    }
+
+    private fun borrarDeDatabase(nombre: String) {
+        val deudorDAO: DeudorDAO = MisDeudores.database.DeudorDAO()
+        val deudor = deudorDAO.searchDeudor(nombre)
+
+        if (deudor != null)
+            deudorDAO.deleteDeudor(deudor)
+        else {
+            Toast.makeText(context, "No existe", Toast.LENGTH_SHORT).show()
         }
     }
 }
