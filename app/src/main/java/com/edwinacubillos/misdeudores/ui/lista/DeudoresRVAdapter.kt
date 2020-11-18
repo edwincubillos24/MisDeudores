@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.edwinacubillos.misdeudores.R
 import com.edwinacubillos.misdeudores.data.server.DeudorServer
 import com.edwinacubillos.misdeudores.databinding.DeudoresItemBinding
+import com.squareup.picasso.Picasso
 
 class DeudoresRVAdapter(var deudoresList: ArrayList<DeudorServer>) :
     RecyclerView.Adapter<DeudoresRVAdapter.DeudoresViewHolder>() {
@@ -31,6 +32,7 @@ class DeudoresRVAdapter(var deudoresList: ArrayList<DeudorServer>) :
         private val binding = DeudoresItemBinding.bind(itemView)
 
         fun bindDeudor(deudor: DeudorServer) {
+            Picasso.get().load(deudor.foto).into(binding.fotoImageView);
             binding.nombreTextView.text = deudor.nombre
             binding.valorTextView.text = deudor.valor.toString()
         }
