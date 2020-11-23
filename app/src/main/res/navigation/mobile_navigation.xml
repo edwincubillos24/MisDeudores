@@ -29,5 +29,18 @@
         android:id="@+id/nav_lista"
         android:name="com.edwinacubillos.misdeudores.ui.lista.ListaFragment"
         android:label="@string/lista"
-        tools:layout="@layout/fragment_lista" />
+        tools:layout="@layout/fragment_lista">
+        <action
+            android:id="@+id/action_nav_lista_to_detalleFragment"
+            app:destination="@id/detalleFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detalleFragment"
+        android:name="com.edwinacubillos.misdeudores.ui.detalle.DetalleFragment"
+        android:label="fragment_detalle"
+        tools:layout="@layout/fragment_detalle">
+        <argument
+            android:name="deudorSeleccionado"
+            app:argType="com.edwinacubillos.misdeudores.data.server.DeudorServer" />
+    </fragment>
 </navigation>

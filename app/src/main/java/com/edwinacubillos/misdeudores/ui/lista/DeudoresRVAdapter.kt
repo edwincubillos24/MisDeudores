@@ -9,13 +9,16 @@ import com.edwinacubillos.misdeudores.data.server.DeudorServer
 import com.edwinacubillos.misdeudores.databinding.DeudoresItemBinding
 import com.squareup.picasso.Picasso
 
-class DeudoresRVAdapter(var deudoresList: ArrayList<DeudorServer>) :
+class DeudoresRVAdapter(
+    var deudoresList: ArrayList<DeudorServer>,
+    val onItemClickListener: OnItemClickListener
+) :
     RecyclerView.Adapter<DeudoresRVAdapter.DeudoresViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DeudoresViewHolder {
         val itemView =
             LayoutInflater.from(parent.context).inflate(R.layout.deudores_item, parent, false)
-        return DeudoresViewHolder(itemView)
+        return DeudoresViewHolder(itemView, onItemClickListener)
     }
 
     override fun onBindViewHolder(holder: DeudoresViewHolder, position: Int) {
@@ -27,14 +30,26 @@ class DeudoresRVAdapter(var deudoresList: ArrayList<DeudorServer>) :
         return deudoresList.size
     }
 
-    class DeudoresViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class DeudoresViewHolder(
+        itemView: View,
+        var onItemClickListener: OnItemClickListener
+    ) : RecyclerView.ViewHolder(itemView) {
 
         private val binding = DeudoresItemBinding.bind(itemView)
 
         fun bindDeudor(deudor: DeudorServer) {
-            Picasso.get().load(deudor.foto).into(binding.fotoImageView);
+            if (deudor.foto != "")
+                Picasso.get().load(deudor.foto).into(binding.fotoImageView)
             binding.nombreTextView.text = deudor.nombre
             binding.valorTextView.text = deudor.valor.toString()
+
+            binding.itemCardView.setOnClickListener {
+                onItemClickListener.onItemClick(deudor)
+            }
         }
+    }
+
+    interface OnItemClickListener {
+        fun onItemClick(deudor: DeudorServer)
     }
 }

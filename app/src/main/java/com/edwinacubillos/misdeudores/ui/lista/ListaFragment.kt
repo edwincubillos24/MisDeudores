@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.edwinacubillos.misdeudores.R
@@ -15,7 +17,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class ListaFragment : Fragment() {
+class ListaFragment : Fragment(), DeudoresRVAdapter.OnItemClickListener {
 
     private lateinit var binding: FragmentListaBinding
     var listDeudores: MutableList<DeudorServer> = mutableListOf()
@@ -36,7 +38,8 @@ class ListaFragment : Fragment() {
             LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         binding.deudoresRecyclerView.setHasFixedSize(true)
 
-        deudoresRVAdapter = DeudoresRVAdapter(listDeudores as ArrayList<DeudorServer>)
+        deudoresRVAdapter =
+            DeudoresRVAdapter(listDeudores as ArrayList<DeudorServer>, this@ListaFragment)
 
         binding.deudoresRecyclerView.adapter = deudoresRVAdapter
 
@@ -67,6 +70,11 @@ class ListaFragment : Fragment() {
         }
 
         myDeudoresRef.addValueEventListener(postListener)
+    }
+
+    override fun onItemClick(deudor: DeudorServer) {
+        val action = ListaFragmentDirections.actionNavListaToDetalleFragment(deudor)
+        findNavController().navigate(action)
     }
 
     /*  fun cargarDesdeDatabase(){
